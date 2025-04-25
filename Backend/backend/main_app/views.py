@@ -20,27 +20,26 @@ class CourseDetailsView(APIView):
 # Define the Schedule view
 class ScheduleDetailsView(APIView):
 
-    def get(self, request, schedule_id):
-def get(self, request, schedule_id):
-    try:
-        schedule = get_object_or_404(Schedule, pk=schedule_id)
-        lessons = Lesson.objects.filter(lesson_sch=schedule)
-        return Response({
-            "schedule": ScheduleSerializer(schedule).data,
-            "lessons": LessonSerializer(lessons, many=True).data,
-        }, status=status.HTTP_200_OK)
-    except Exception as err:
-        return Response({'error': str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+  def get(self, request, schedule_id):
+      try:
+          schedule = get_object_or_404(Schedule, pk=schedule_id)
+          lessons = Lesson.objects.filter(lesson_sch=schedule)
+          return Response({
+              "schedule": ScheduleSerializer(schedule).data,
+              "lessons": LessonSerializer(lessons, many=True).data,
+          }, status=status.HTTP_200_OK)
+      except Exception as err:
+          return Response({'error': str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
-def delete(self, request, schedule_id):
-    try:
-        schedule = get_object_or_404(Schedule, pk=schedule_id)
-        schedule.delete()
-        return Response({'success': True}, status=status.HTTP_200_OK)
-    except Exception as err:
-        return Response({'error': str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+  def delete(self, request, schedule_id):
+      try:
+          schedule = get_object_or_404(Schedule, pk=schedule_id)
+          schedule.delete()
+          return Response({'success': True}, status=status.HTTP_200_OK)
+      except Exception as err:
+          return Response({'error': str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
