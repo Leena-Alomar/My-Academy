@@ -18,13 +18,13 @@ class CourseSerializer(serializers.ModelSerializer):
         fields = '__all__'
 
 class ScheduleSerializer(serializers.ModelSerializer):
-    
+    lessons =  LessonSerializer(many=True,read_only=True)
     class Meta:
         model = Schedule
         fields = '__all__'
 
 class LessonSerializer(serializers.ModelSerializer):
-    lesson_sch =  ScheduleSerializer(read_only=True)
+    
     class Meta:
         model = Lesson
         fields = '__all__'
