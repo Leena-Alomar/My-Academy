@@ -4,9 +4,64 @@ from rest_framework import status
 from .models import Course,User,Schedule,Lesson
 from .serializers import UserSerializer,CourseSerializer,ScheduleSerializer ,LessonSerializer
 from django.shortcuts import get_object_or_404
+from django.contrib.auth.models import User
+from rest_framework_simplejwt.tokens import RefreshToken
+from django.contrib.auth import authenticate
+from rest_framework import generics, status, permissions
+
+
+# User Verification
+class VerifyUserView(APIView):
+  permission_classes = [permissions.IsAuthenticated]
+
+  def get(self, request):
+    try:
+      user = User.objects.get(username=request.user.username)
+      try:
+        refresh = RefreshToken.for_user(user)
+        return Response({'refresh': str(refresh),'access': str(refresh.access_token),'user': UserSerializer(user).data}, status=status.HTTP_200_OK)
+      except Exception as token_error:
+        return Response({"detail": "Failed to generate token.", "error": str(token_error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    except Exception as err:
+      return Response({"detail": "Unexpected error occurred.", "error": str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+# Login View
+class LoginView(APIView):
+
+  def post(self, request):
+    try:
+      username = request.data.get('username')
+      password = request.data.get('password')
+      user = authenticate(username=username, password=password)
+      if user:
+        refresh = RefreshToken.for_user(user)
+        content = {'refresh': str(refresh), 'access': str(refresh.access_token),'user': UserSerializer(user).data}
+        return Response(content, status=status.HTTP_200_OK)
+      return Response({'error': 'Invalid credentials'}, status=status.HTTP_401_UNAUTHORIZED)
+    except Exception as err:
+      return Response({'error': str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+      
+# User Registration
+class CreateUserView(generics.CreateAPIView):
+  queryset = User.objects.all()
+  serializer_class = UserSerializer
+
+  def create(self, request, *args, **kwargs):
+    try:
+      response = super().create(request, *args, **kwargs)
+      user = User.objects.get(username=response.data['username'])
+      refresh = RefreshToken.for_user(user)
+      content = {'refresh': str(refresh), 'access': str(refresh.access_token), 'user': response.data }
+      return Response(content, status=status.HTTP_201_CREATED)
+    except Exception as err:
+      return Response({ 'error': str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 # Define the Coures view
 class CourseDetailsView(APIView):
+  permission_classes = [permissions.IsAuthenticated]
+  serializer_class = CourseSerializer 
 
    def get(self, request):
     try:
@@ -19,8 +74,12 @@ class CourseDetailsView(APIView):
 
 # Define the Schedule view
 class ScheduleDetailsView(APIView):
+  permission_classes = [permissions.IsAuthenticated]
+  serializer_class = ScheduleSerializer
 
   def get(self, request, schedule_id):
+    
+
       try:
           schedule = get_object_or_404(Schedule, pk=schedule_id)
           lessons = Lesson.objects.filter(lesson_sch=schedule)
@@ -44,6 +103,9 @@ class ScheduleDetailsView(APIView):
 
 
 class ScheduleLessonRelationView(APIView):
+  permission_classes = [permissions.IsAuthenticated]
+  serializer_class = ScheduleSerializer
+
     def put(self, request, schedule_id, lesson_id):
         try:
             schedule = Schedule.objects.get(id=schedule_id)
@@ -78,6 +140,9 @@ class ScheduleLessonRelationView(APIView):
 
 # Define the Lesson view
 class LessonDetailsView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = LessonSerializer
+
     def get(self, request, lesson_id):
         lesson = get_object_or_404(Lesson, pk=lesson_id)
         serializer = LessonSerializer(lesson)
@@ -92,6 +157,9 @@ class LessonDetailsView(APIView):
 
 
 class LessonRelationView(APIView):
+    permission_classes = [permissions.IsAuthenticated]
+    serializer_class = LessonSerializer
+
     def put(self, request, lesson_id):
         try:
             lesson = get_object_or_404(Lesson, id=lesson_id)
@@ -114,7 +182,6 @@ class LessonRelationView(APIView):
         lesson.save()
         lesson.delete()
         return Response({'message': f'Lesson {lesson.lesson_name} is deleted'}, status=200)
-
 
 
     def post(self, request,lesson_id):
