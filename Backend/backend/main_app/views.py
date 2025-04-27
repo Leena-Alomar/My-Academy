@@ -9,21 +9,24 @@ from rest_framework_simplejwt.tokens import RefreshToken
 from django.contrib.auth import authenticate
 from rest_framework import generics, status, permissions
 
+     
+# User Registration
+class CreateUserView(generics.CreateAPIView):
+  queryset = User.objects.all()
+  serializer_class = UserSerializer
 
-# User Verification
-class VerifyUserView(APIView):
-  permission_classes = [permissions.IsAuthenticated]
-
-  def get(self, request):
+  def create(self, request, *args, **kwargs):
     try:
-      user = User.objects.get(username=request.user.username)
-      try:
-        refresh = RefreshToken.for_user(user)
-        return Response({'refresh': str(refresh),'access': str(refresh.access_token),'user': UserSerializer(user).data}, status=status.HTTP_200_OK)
-      except Exception as token_error:
-        return Response({"detail": "Failed to generate token.", "error": str(token_error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+      response = super().create(request, *args, **kwargs)
+      user = User.objects.get(username=response.data['username'])
+      refresh = RefreshToken.for_user(user)
+      content = {'refresh': str(refresh), 'access': str(refresh.access_token), 'user': response.data }
+      return Response(content, status=status.HTTP_201_CREATED)
     except Exception as err:
-      return Response({"detail": "Unexpected error occurred.", "error": str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+      print(err)
+      return Response({ 'error': str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)    
+
+
 
 # Login View
 class LoginView(APIView):
@@ -42,28 +45,28 @@ class LoginView(APIView):
       return Response({'error': str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
-      
-# User Registration
-class CreateUserView(generics.CreateAPIView):
-  queryset = User.objects.all()
-  serializer_class = UserSerializer
+# User Verification
+class VerifyUserView(APIView):
+  permission_classes = [permissions.IsAuthenticated]
 
-  def create(self, request, *args, **kwargs):
+  def get(self, request):
     try:
-      response = super().create(request, *args, **kwargs)
-      user = User.objects.get(username=response.data['username'])
-      refresh = RefreshToken.for_user(user)
-      content = {'refresh': str(refresh), 'access': str(refresh.access_token), 'user': response.data }
-      return Response(content, status=status.HTTP_201_CREATED)
+      user = User.objects.get(username=request.user.username)
+      try:
+        refresh = RefreshToken.for_user(user)
+        return Response({'refresh': str(refresh),'access': str(refresh.access_token),'user': UserSerializer(user).data}, status=status.HTTP_200_OK)
+      except Exception as token_error:
+        return Response({"detail": "Failed to generate token.", "error": str(token_error)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     except Exception as err:
-      return Response({ 'error': str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+      return Response({"detail": "Unexpected error occurred.", "error": str(err)}, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+ 
 
 # Define the Coures view
 class CourseDetailsView(APIView):
   permission_classes = [permissions.IsAuthenticated]
   serializer_class = CourseSerializer 
 
-   def get(self, request):
+  def get(self, request):
     try:
       queryset = Course.objects.all()
       serializer = CourseSerializer(queryset, many=True)
@@ -77,11 +80,11 @@ class ScheduleDetailsView(APIView):
   permission_classes = [permissions.IsAuthenticated]
   serializer_class = ScheduleSerializer
 
-  def get(self, request, schedule_id):
+  def get(self, request, id):
     
 
       try:
-          schedule = get_object_or_404(Schedule, pk=schedule_id)
+          schedule = get_object_or_404(Schedule, pk=id)
           lessons = Lesson.objects.filter(lesson_sch=schedule)
           return Response({
               "schedule": ScheduleSerializer(schedule).data,
@@ -92,9 +95,9 @@ class ScheduleDetailsView(APIView):
 
 
 
-  def delete(self, request, schedule_id):
+  def delete(self, request, id):
       try:
-          schedule = get_object_or_404(Schedule, pk=schedule_id)
+          schedule = get_object_or_404(Schedule, pk=id)
           schedule.delete()
           return Response({'success': True}, status=status.HTTP_200_OK)
       except Exception as err:
@@ -106,28 +109,29 @@ class ScheduleLessonRelationView(APIView):
   permission_classes = [permissions.IsAuthenticated]
   serializer_class = ScheduleSerializer
 
-    def put(self, request, schedule_id, lesson_id):
-        try:
-            schedule = Schedule.objects.get(id=schedule_id)
-            lesson = Lesson.objects.get(id=lesson_id)
-        except (Schedule.DoesNotExist, Lesson.DoesNotExist):
-            return Response({'error': 'Schedule or Lesson not found'}, status=404)
-        lesson.lesson_sch = schedule
-        lesson.save()
-        return Response({'message': f'Lesson {lesson.lesson_name} added to Schedule {schedule.schedule_id}'}, status=200)
+  def put(self, request, id):
+    try:
+        schedule = Schedule.objects.get(id=id)
+        lesson = Lesson.objects.get(id=id)
+    except (Schedule.DoesNotExist, Lesson.DoesNotExist):
+        return Response({'error': 'Schedule or Lesson not found'}, status=404)
+    lesson.lesson_sch = schedule
+    lesson.save()
+    return Response({'message': f'Lesson {lesson.lesson_name} added to Schedule {schedule.schedule_id}'}, status=200)
 
-    def delete(self, request, schedule_id, lesson_id):
-        try:
-            schedule = Schedule.objects.get(id=schedule_id)
-            lesson = Lesson.objects.get(id=lesson_id)
-        except (Schedule.DoesNotExist, Lesson.DoesNotExist):
-            return Response({'error': 'Schedule or Lesson not found'}, status=404)
-        lesson.delete()
-        return Response({'message': f'Lesson {lesson.lesson_name} is deleted'}, status=200)
+# here how can i have id for two diff modles
+  def delete(self, request, schedule_id, lesson_id):
+    try:
+        schedule = Schedule.objects.get(id=id)
+        lesson = Lesson.objects.get(id=id)
+    except (Schedule.DoesNotExist, Lesson.DoesNotExist):
+        return Response({'error': 'Schedule or Lesson not found'}, status=404)
+    lesson.delete()
+    return Response({'message': f'Lesson {lesson.lesson_name} is deleted'}, status=200)
 
     def post(self, request, schedule_id):
         try:
-            schedule = Schedule.objects.get(id=schedule_id)
+            schedule = Schedule.objects.get(id=id)
         except (Schedule.DoesNotExist):
             return Response({'error': 'Schedule not found'}, status=404)
 
@@ -143,14 +147,14 @@ class LessonDetailsView(APIView):
     permission_classes = [permissions.IsAuthenticated]
     serializer_class = LessonSerializer
 
-    def get(self, request, lesson_id):
-        lesson = get_object_or_404(Lesson, pk=lesson_id)
+    def get(self, request, id):
+        lesson = get_object_or_404(Lesson, pk=id)
         serializer = LessonSerializer(lesson)
         return Response(serializer.data)
 
 
     def delete(self, request, lesson_id):
-        lesson = get_object_or_404(Lesson, pk=lesson_id)
+        lesson = get_object_or_404(Lesson, pk=id)
         lesson.delete()
         return Response(status=status.HTTP_204_NO_CONTENT)
 

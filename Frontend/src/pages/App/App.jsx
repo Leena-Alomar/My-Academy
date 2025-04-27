@@ -38,7 +38,7 @@ function App () {
         
         {user ?
             <Routes>
-                
+                <Route path="/*" element={<Navigate to="/home" />} />
                 <Route path="/about" element={<AboutPage />} />
                 <Route path="/schedule" element={<SchdeuleDetailPage />} />
                 <Route path="/Main" element={<MainPage />} />
@@ -47,6 +47,7 @@ function App () {
           <Routes>
             <Route path="/signup" element={<SignupPage user={user} setUser={setUser}  />}/>
             <Route path="/home" element={<HomePage  user={user} setUser={setUser}/>} />
+            <Route path="/*" element={<Navigate to="/home" />} />
           </Routes>
         }
                 

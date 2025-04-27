@@ -6,14 +6,15 @@ import { useNavigate } from "react-router";
 // IMAGES
 
 
+
 // APIs
 import * as usersAPI from "../../utilities/users-api.js"
 
 export default function SignupPage({ setUser }) {
     const navigate = useNavigate();
-    const initialState = { username: "", password: "", confirmPassword: "", email: "",Teacher:"" }
+    const initialState = { username: "", password: "", confirmPassword: "", email: "" }
     const [formData, setFormData] = useState(initialState)
-    const [errors, setErrors] = useState({ username: '', password: '', email: '', confirmPassword: '',Teacher:''});
+    const [errors, setErrors] = useState({ username: '', password: '', email: '', confirmPassword: ''});
     let disabledSubmitBtn = Object.values(errors).every(val => val === "") && Object.values(formData).every(val => val !== "") ? false : true
 
     function handleChange(evt) {
@@ -36,9 +37,7 @@ export default function SignupPage({ setUser }) {
         if (target.name === 'email') {
             updateErrors.email = !target.value.includes("@") ? "Your password must be a real email / include the '@' symbol." : "";
         }
-        if (target.name === 'Teacher') {
-            updateErrors.Teacher = !target.value.includes("True" || "False") ? "Your Answer Should be True of False." : "";
-        }
+     
         setErrors(updateErrors);
     };
 
@@ -96,14 +95,7 @@ export default function SignupPage({ setUser }) {
                             { errors.confirmPassword && <p>{errors.confirmPassword}</p> }
                         </td>
                     </tr>
-                    <tr>
-                        <th><label htmlFor="is_teacher"></label></th>
-                        <td>
-                            <input placeholder="Are You a Teacher:" className="in" type="text" value={formData.Teacher} name="Teacher" onChange={handleChange}/>
-                            <br/>
-                            { errors.Teacher && <p>{errors.Teacher}</p> }
-                        </td>
-                    </tr>
+
                 </tbody>
             </table>
             <button type="submit" disabled={disabledSubmitBtn} className="btn-submit">Submit!</button>
