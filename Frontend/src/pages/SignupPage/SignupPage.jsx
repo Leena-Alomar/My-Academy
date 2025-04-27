@@ -1,4 +1,5 @@
 // IMPORTS
+import "./styles.css";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 
@@ -56,55 +57,56 @@ export default function SignupPage({ setUser }) {
 
     return (<>
         <div className="page-header">
-            <h1>Sign Up</h1>
+            
             {/* <img src={nerdCat} alt="A cat using a computer" /> */}
         </div>
-        <form onSubmit={handleSubmit} className="form-container signup">
+        <form  onSubmit={handleSubmit} className="form-container-signup">
+            <h1 className="login">Sign Up</h1>
             <table>
                 <tbody>
                     <tr>
-                        <th><label htmlFor="id_username">Username:</label></th>
+                        <th><label htmlFor="id_username"></label></th>
                         <td>
-                            <input type="text" value={formData.username} name="username" minLength="3" maxLength="150" onChange={handleChange} />
+                            <input className="in" placeholder="Username:" type="text" value={formData.username} name="username" minLength="3" maxLength="150" onChange={handleChange} />
                             <br/>
                             { errors.username && <p>{errors.username}</p> }
                         </td>
                     </tr>
                     <tr>
-                        <th><label htmlFor="id_email">Email:</label></th>
+                        <th><label htmlFor="id_email"></label></th>
                         <td>
-                            <input type="text" value={formData.email} name="email" minLength="3" maxLength="150" onChange={handleChange} />
+                            <input placeholder="Email:" className="in" type="text" value={formData.email} name="email" minLength="3" maxLength="150" onChange={handleChange} />
                             <br/>
                             { errors.email && <p>{errors.email}</p> }
                         </td>
                     </tr>
                     <tr>
-                        <th><label htmlFor="id_password1">Password:</label></th>
+                        <th><label htmlFor="id_password1"></label></th>
                         <td>
-                            <input type="password" value={formData.password} name="password" minLength="3" onChange={handleChange} />
+                            <input placeholder="Password:" className="in" type="password" value={formData.password} name="password" minLength="3" onChange={handleChange} />
                             <br/>
                             { errors.password && <p>{errors.password}</p> }
                         </td>
                     </tr>
                     <tr>
-                        <th><label htmlFor="id_password2">Password confirmation:</label></th>
+                        <th><label htmlFor="id_password2"></label></th>
                         <td>
-                            <input type="password" value={formData.confirmPassword} name="confirmPassword" onChange={handleChange}/>
+                            <input placeholder="Password confirmation:" className="in" type="password" value={formData.confirmPassword} name="confirmPassword" onChange={handleChange}/>
                             <br/>
                             { errors.confirmPassword && <p>{errors.confirmPassword}</p> }
                         </td>
                     </tr>
                     <tr>
-                        <th><label htmlFor="is_teacher">Are You a Teacher:</label></th>
+                        <th><label htmlFor="is_teacher"></label></th>
                         <td>
-                            <input type="text" value={formData.Teacher} name="Teacher" onChange={handleChange}/>
+                            <input placeholder="Are You a Teacher:" className="in" type="text" value={formData.Teacher} name="Teacher" onChange={handleChange}/>
                             <br/>
                             { errors.Teacher && <p>{errors.Teacher}</p> }
                         </td>
                     </tr>
                 </tbody>
             </table>
-            <button type="submit" disabled={disabledSubmitBtn} className="btn submit">Submit!</button>
+            <button type="submit" disabled={disabledSubmitBtn} className="btn-submit">Submit!</button>
         </form>
     </>)
 }

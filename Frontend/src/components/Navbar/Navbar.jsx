@@ -1,4 +1,5 @@
 // imports
+import "./styles.css";
 import { useNavigate, Link } from "react-router";
 
 // APIs

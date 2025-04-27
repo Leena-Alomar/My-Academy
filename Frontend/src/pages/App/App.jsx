@@ -29,7 +29,7 @@ function App () {
         </Link>
       </div>
       <nav>
-        <ul>
+        <ul className=" nav1">
           <Navbar user={user} setUser={setUser} />
         </ul>
       </nav>

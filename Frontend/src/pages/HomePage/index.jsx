@@ -3,7 +3,8 @@ import "./styles.css";
 import { useState } from "react";
 import { useNavigate } from "react-router";
 // IMAGES
-
+import study from "../../assets/images/icon.png";
+import studyTwo from "../../assets/images/icon3.png";
 // APIs
 import * as usersAPI from "../../utilities/users-api";
 
@@ -22,7 +23,7 @@ export default function HomePage({ user, setUser }) {
       evt.preventDefault();
       const loggedInUser = await usersAPI.login(formData);
       setUser(loggedInUser);
-      navigate("/schedule");
+      navigate("/Main");
     } catch (err) {
       setUser(null);
     }
@@ -30,25 +31,28 @@ export default function HomePage({ user, setUser }) {
 
   return (<>
     <section className="logo-container">
-      <div className="home-cat-container">
-        {/* <img src={} alt="The Cat Collector Cat" /> */}
+      <div className="home-container">
+        
       </div>
       {/* <img src={logoType} alt="Text reads: Cat Collector" /> */}
     </section>
     {!user &&
       <section>
-        <form onSubmit={handleLogin} className="form-container login">
-          <h1>Login</h1>
+       <img className="study2" src={studyTwo} alt="study2 icon" />
+        <form onSubmit={handleLogin} className="form-container-login">
+          <h1 className="login">User Login</h1>
           <p>
-            <label htmlFor="id_username">Username:</label>
-            <input value={formData.username} type="text" name="username" maxLength="150" required id="id_username" onChange={handleChange}/>
+            <label htmlFor="id_username"></label>
+            <input placeholder="User Name" className="in" value={formData.username} type="text" name="username" maxLength="150" required id="id_username" onChange={handleChange}/>
           </p>
           <p>
-            <label htmlFor="id_password">Password:</label>
-            <input value={formData.password} type="password" name="password" required id="id_password" onChange={handleChange} />
+            <label htmlFor="id_password"></label>
+            <input placeholder="Password" className="in" value={formData.password} type="password" name="password" required id="id_password" onChange={handleChange} />
           </p>
-          <button type="submit" className="btn submit">Login</button>
+          <button type="submit" className="btn1">Login</button>
         </form>
+        <img className="study" src={study} alt="study icon" />
+       
       </section>
     }
   </>)
